@@ -1,0 +1,142 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:17
+    container_name: analyzer_postgres
+    environment:
+      POSTGRES_DB: analyzer_db
+      POSTGRES_USER: analyzer_user
+      POSTGRES_PASSWORD: analyzer_password
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - analyzer_network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U analyzer_user -d analyzer_db" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  redis:
+    image: redis:7-alpine
+    container_name: analyzer_redis
+    command: redis-server --bind 0.0.0.0 --protected-mode no --appendonly yes
+    ports:
+      - "6379:6379"
+    networks:
+      - analyzer_network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "ping" ]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  ollama:
+    image: ollama/ollama:latest
+    ports:
+      - "11434:11434"
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - analyzer_network
+
+  backend:
+    build: ./backend
+    container_name: analyzer_backend
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "8000:8000"
+    environment:
+      - DEBUG=True
+      - DATABASE_URL=postgres://postgres:1243268h@postgres:5432/testgen
+      - REDIS_URL=redis://redis:6379/0
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/0
+      - OLLAMA_URL=http://ollama:11434
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      ollama:
+        condition: service_started
+    networks:
+      - analyzer_network
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+          cpus: '1.0'
+    restart: unless-stopped
+
+  celery_worker:
+    build: ./backend
+    container_name: analyzer_celery_worker
+    command: celery -A app worker --loglevel=info --pool=solo
+    volumes:
+      - ./backend:/app
+      - backend_media:/app/media
+      - ./work:/work
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - DATABASE_URL=postgres://postgres:1243268h@postgres:5432/testgen
+      - REDIS_URL=redis://redis:6379/0
+      - OLLAMA_URL=http://ollama:11434
+    depends_on:
+      - postgres
+      - redis
+      - ollama
+      - backend
+    networks:
+      - analyzer_network
+    restart: unless-stopped
+
+  celery_beat:
+    build: ./backend
+    command: celery -A app beat --loglevel=info
+    volumes:
+      - ./backend:/app
+    environment:
+      - DATABASE_URL=postgres://postgres:1243268h@postgres:5432/testgen
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - redis
+      - backend
+    networks:
+      - analyzer_network
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "3000:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - VITE_API_URL=http://localhost:8000/api
+    depends_on:
+      - backend
+    networks:
+      - analyzer_network
+
+volumes:
+  postgres_data:
+  ollama_data:
+  backend_media:
+
+networks:
+  analyzer_network:
+    driver: bridge
