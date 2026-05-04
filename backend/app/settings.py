@@ -1,6 +1,7 @@
 import os
 from pathlib import Path
 from datetime import timedelta
+from celery.schedules import crontab
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-change-this')
@@ -54,7 +55,7 @@ DATABASES = {
         'NAME': 'analyzer_db',
         'USER': 'analyzer_user',
         'PASSWORD': 'analyzer_password',
-        'HOST': 'postgres',
+        'HOST': 'postgres',  # Имя сервиса в docker-compose
         'PORT': '5432',
         'CONN_MAX_AGE': 600,
     }
@@ -109,6 +110,14 @@ CELERY_BROKER_TRANSPORT_OPTIONS = {
 }
 CELERY_TASK_ACKS_LATE = True
 CELERY_TASK_REJECT_ON_WORKER_LOST = True
+
+# Celery Beat schedule (periodic tasks)
+CELERY_BEAT_SCHEDULE = {
+    'cleanup_expired_sessions_daily': {
+        'task': 'analyzer.tasks.cleanup_expired_sessions',
+        'schedule': crontab(hour=3, minute=0),  # daily at 03:00 UTC
+    }
+}
 
 OLLAMA_URL = os.environ.get('OLLAMA_URL', 'http://ollama:11434')
 OLLAMA_MODEL = os.environ.get('OLLAMA_MODEL', 'llama3')

@@ -12,6 +12,7 @@ export const AuthProvider = ({ children }) => {
     const initAuth = async () => {
       if (authAPI.isAuthenticated()) {
         try {
+          // Здесь можно добавить запрос к /auth/me/ для получения данных пользователя
           setUser({ username: 'user' });
         } catch (error) {
           authAPI.logout();

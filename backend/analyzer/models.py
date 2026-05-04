@@ -15,11 +15,18 @@ class AnalysisSession(models.Model):
         ('FAILED', 'Failed'),
     ]
 
+    UPLOAD_MODE_CHOICES = [
+        ('FILES', 'Files'),
+        ('ARCHIVE', 'Archive'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='analysis_sessions')
     name = models.CharField(max_length=255, default='Untitled Session')
     python_version = models.CharField(max_length=10, default='3.9')
     dependencies = models.JSONField(default=list, blank=True)
+    upload_mode = models.CharField(max_length=10, choices=UPLOAD_MODE_CHOICES, default='FILES')
+    run_command = models.CharField(max_length=500, blank=True, default='')
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='PENDING')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -38,24 +45,36 @@ class AnalysisSession(models.Model):
         super().save(*args, **kwargs)
 
 class UploadedFile(models.Model):
+    FILE_TYPE_CHOICES = [
+        ('PY', 'Python file'),
+        ('ARCHIVE', 'Archive'),
+        ('REQUIREMENTS', 'Requirements'),
+        ('OTHER', 'Other'),
+    ]
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session = models.ForeignKey(AnalysisSession, on_delete=models.CASCADE, related_name='files')
 
     file = models.FileField(upload_to='uploads/%Y/%m/%d/')
     original_name = models.CharField(max_length=255)
     file_size = models.BigIntegerField()
+    file_type = models.CharField(max_length=20, choices=FILE_TYPE_CHOICES, default='PY')
 
     uploaded_at = models.DateTimeField(auto_now_add=True)
 
 class TestGenerationTask(models.Model):
+    """Задача генерации тестов"""
 
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
     session = models.ForeignKey(AnalysisSession, on_delete=models.CASCADE, related_name='testgenerationtask_set')
 
+    # Конфигурация генерации
     config = models.JSONField(default=dict)
 
+    # Результаты
     generated_tests = models.TextField(blank=True)
 
+    # Статусы задачи
     STATUS_CHOICES = [
         ('PENDING', 'Ожидает'),
         ('GENERATING', 'Генерируется'),
@@ -76,6 +95,7 @@ class TestGenerationTask(models.Model):
 
 
 class TestGenerationConfigSerializer(serializers.Serializer):
+    """Конфигурация генерации тестов"""
 
     detail_level = serializers.ChoiceField(
         choices=['basic', 'advanced', 'full'],
@@ -96,12 +116,13 @@ class TestGenerationConfigSerializer(serializers.Serializer):
         help_text='Фреймворк для тестов'
     )
     model = serializers.CharField(
-        default='llama3.2',
+        default='llama3',
         help_text='AI модель для генерации'
     )
 
 
 class TestGenerationTaskSerializer(serializers.ModelSerializer):
+    """Сериализатор задачи генерации тестов"""
 
     config = serializers.JSONField()
 

@@ -16,6 +16,27 @@ export default function Upload() {
 
   const navigate = useNavigate();
 
+  const handleFilesSelected = (selected) => {
+    const list = selected || [];
+    const isArchive = (name = '') => {
+      const n = name.toLowerCase();
+      return n.endsWith('.zip') || n.endsWith('.tar') || n.endsWith('.tar.gz') || n.endsWith('.tgz');
+    };
+
+    const archives = list.filter(f => isArchive(f?.name));
+    if (archives.length > 0) {
+      if (archives.length > 1) {
+        toast.error('Выберите только один архив проекта');
+      } else if (list.length > 1) {
+        toast('Обнаружен архив. Будет загружен только архив (остальные файлы проигнорированы).');
+      }
+      setFiles([archives[0]]);
+      return;
+    }
+
+    setFiles(list);
+  };
+
   const handleCreate = async () => {
       if (files.length === 0) {
         toast.error('Выберите хотя бы один файл');
@@ -24,12 +45,14 @@ export default function Upload() {
 
       setLoading(true);
       try {
+        // 1. Создаем сессию
         const session = await sessionsAPI.create({
           name: sessionName || `Session ${new Date().toLocaleDateString()}`,
           python_version: pythonVersion,
           dependencies: []
         });
 
+        // 2. Загружаем файлы (передаем массив объектов File)
         await sessionsAPI.uploadFiles(session.id, files);
 
         toast.success('Файлы загружены! Начинается анализ...');
@@ -60,7 +83,7 @@ export default function Upload() {
     <div className="max-w-2xl mx-auto space-y-6">
       <div>
         <h1 className="text-2xl font-bold text-gray-900">Новая сессия</h1>
-        <p className="text-gray-600">Загрузите файлы Python проекта для анализа</p>
+        <p className="text-gray-600">Загрузите файлы Python проекта или архив проекта для анализа</p>
       </div>
 
       <div className="card space-y-6">
@@ -94,7 +117,11 @@ export default function Upload() {
           </select>
         </div>
 
-        <FileUpload onFilesSelected={setFiles} />
+        <FileUpload
+          onFilesSelected={handleFilesSelected}
+          accept=".py,.zip,.tar,.tar.gz,.tgz,.txt"
+          multiple={true}
+        />
 
         <button
           onClick={handleCreate}

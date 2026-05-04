@@ -9,6 +9,7 @@ const api = axios.create({
   },
 });
 
+// Добавляем токен к запросам
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('access_token');
@@ -20,6 +21,7 @@ api.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// Обработка истечения токена
 api.interceptors.response.use(
   (response) => response,
   async (error) => {

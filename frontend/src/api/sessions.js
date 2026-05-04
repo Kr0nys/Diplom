@@ -22,7 +22,18 @@ export const sessionsAPI = {
 
   uploadFiles: async (sessionId, files) => {
     const formData = new FormData();
-    files.forEach(file => formData.append('files', file));
+    const list = files || [];
+    const isArchive = (name = '') => {
+      const n = String(name || '').toLowerCase();
+      return n.endsWith('.zip') || n.endsWith('.tar') || n.endsWith('.tar.gz') || n.endsWith('.tgz');
+    };
+
+    const archive = list.find(f => isArchive(f?.name));
+    if (archive) {
+      formData.append('archive', archive);
+    } else {
+      list.forEach(file => formData.append('files', file));
+    }
     const response = await api.post(`/sessions/${sessionId}/upload_files/`, formData, {
       headers: { 'Content-Type': 'multipart/form-data' }
     });

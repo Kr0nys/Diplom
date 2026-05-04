@@ -66,7 +66,7 @@ export default function FileUpload({ onFilesSelected, accept = '.py,.txt', multi
           <p className="text-gray-600">
             Перетащите файлы сюда или <span className="text-primary-600">выберите</span>
           </p>
-          <p className="text-xs text-gray-500">Python файлы (.py), requirements.txt</p>
+          <p className="text-xs text-gray-500">Python файлы (.py), requirements.txt или архив проекта (.zip, .tar, .tar.gz, .tgz)</p>
         </div>
       </div>
 

@@ -4,9 +4,9 @@ export default function TestConfigForm({ onSubmit, loading }) {
   const [config, setConfig] = useState({
     detail_level: 'basic',
     use_mocks: true,
-    async_support: false,
-    timeout_seconds: 300,
-    include_edge_cases: false
+    include_edge_cases: true,
+    test_framework: 'pytest',
+    model: 'llama3',
   });
 
   const handleSubmit = (e) => {
@@ -45,16 +45,6 @@ export default function TestConfigForm({ onSubmit, loading }) {
         <label className="flex items-center space-x-3">
           <input
             type="checkbox"
-            checked={config.async_support}
-            onChange={(e) => setConfig({ ...config, async_support: e.target.checked })}
-            className="w-4 h-4 text-primary-600 rounded"
-          />
-          <span className="text-sm text-gray-700">Поддержка асинхронного кода</span>
-        </label>
-
-        <label className="flex items-center space-x-3">
-          <input
-            type="checkbox"
             checked={config.include_edge_cases}
             onChange={(e) => setConfig({ ...config, include_edge_cases: e.target.checked })}
             className="w-4 h-4 text-primary-600 rounded"
@@ -65,21 +55,29 @@ export default function TestConfigForm({ onSubmit, loading }) {
 
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">
-          Таймаут генерации: {config.timeout_seconds} сек
+          Тестовый фреймворк
+        </label>
+        <select
+          value={config.test_framework}
+          onChange={(e) => setConfig({ ...config, test_framework: e.target.value })}
+          className="input-field"
+        >
+          <option value="pytest">pytest</option>
+          <option value="unittest">unittest</option>
+        </select>
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          AI модель (для advanced/full)
         </label>
         <input
-          type="range"
-          min="60"
-          max="1800"
-          step="60"
-          value={config.timeout_seconds}
-          onChange={(e) => setConfig({ ...config, timeout_seconds: parseInt(e.target.value) })}
-          className="w-full"
+          type="text"
+          value={config.model}
+          onChange={(e) => setConfig({ ...config, model: e.target.value })}
+          placeholder="llama3"
+          className="input-field"
         />
-        <div className="flex justify-between text-xs text-gray-500">
-          <span>1 мин</span>
-          <span>30 мин</span>
-        </div>
       </div>
 
       <button type="submit" className="btn-primary w-full" disabled={loading}>

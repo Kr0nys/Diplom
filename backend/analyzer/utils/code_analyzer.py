@@ -1,3 +1,5 @@
+# backend/analyzer/utils/code_analyzer.py
+
 import ast
 import os
 import logging
@@ -8,7 +10,14 @@ logger = logging.getLogger(__name__)
 
 
 class CodeAnalyzer:
+    """
+    Локальный анализатор кода (fallback режим).
 
+    Используется когда Docker-анализ недоступен.
+    Собирает базовые метрики через AST-парсинг.
+    """
+
+    # Маппинг популярных импортов к названиям пакетов для pip install
     IMPORT_TO_PACKAGE = {
         'requests': 'requests',
         'numpy': 'numpy',
@@ -31,7 +40,15 @@ class CodeAnalyzer:
     }
 
     def detect_dependencies(self, file_paths: List[str]) -> List[str]:
+        """
+        Обнаруживает зависимости по import statements в коде.
 
+        Args:
+            file_paths: Список путей к Python-файлам
+
+        Returns:
+            Список названий пакетов для requirements.txt
+        """
         dependencies = set()
 
         for file_path in file_paths:
@@ -63,7 +80,19 @@ class CodeAnalyzer:
         return list(dependencies)
 
     def analyze_code(self, file_paths: List[str]) -> Dict:
+        """
+        Полный анализ кода: сбор метрик и формирование отчёта.
 
+        Args:
+            file_paths: Список путей к Python-файлам
+
+        Returns:
+            Dict с метриками и текстовым отчётом:
+            {
+                'metrics': {...},
+                'report': '...'
+            }
+        """
         all_functions: List[Dict] = []
         all_classes: List[Dict] = []
         all_imports: set = set()
@@ -94,31 +123,33 @@ class CodeAnalyzer:
                              f"{len(analyzer.functions)} functions, {len(analyzer.classes)} classes")
 
             except FileNotFoundError:
-                logger.error(f"File not found: {file_path}")
+                logger.error(f"❌ File not found: {file_path}")
             except SyntaxError as e:
-                logger.error(f"Syntax error in {os.path.basename(file_path)}: {e}")
+                logger.error(f"❌ Syntax error in {os.path.basename(file_path)}: {e}")
             except UnicodeDecodeError as e:
-                logger.error(f"Encoding error in {file_path}: {e}")
+                logger.error(f"❌ Encoding error in {file_path}: {e}")
             except Exception as e:
-                logger.error(f"Error analyzing {file_path}: {type(e).__name__}: {e}", exc_info=True)
+                logger.error(f"❌ Error analyzing {file_path}: {type(e).__name__}: {e}", exc_info=True)
                 continue
 
+        # Считаем асинхронные функции
         async_count = len([f for f in all_functions if f.get('async')])
 
         # Формируем текстовый отчёт
         report_lines = [
             "=== ОТЧЁТ АНАЛИЗА КОДА ===",
-            f"Всего файлов: {total_files}",
-            f"Всего строк: {total_lines}",
-            f"Функций: {len(all_functions)}",
-            f"Классов: {len(all_classes)}",
-            f"Импортов: {len(all_imports)}",
-            f"Асинхронных функций: {async_count}",
-            f"Docstring coverage: {round(docstring_count / max(len(all_functions) + len(all_classes), 1) * 100, 1)}%",
+            f"📁 Всего файлов: {total_files}",
+            f"📝 Всего строк: {total_lines}",
+            f"🔧 Функций: {len(all_functions)}",
+            f"🏗️ Классов: {len(all_classes)}",
+            f"📦 Импортов: {len(all_imports)}",
+            f"⚡ Асинхронных функций: {async_count}",
+            f"📚 Docstring coverage: {round(docstring_count / max(len(all_functions) + len(all_classes), 1) * 100, 1)}%",
             "",
             "=== РЕКОМЕНДАЦИИ ==="
         ]
 
+        # Добавляем рекомендации на основе метрик
         if len(all_functions) > 50:
             report_lines.append("⚠️ Большое количество функций (>50). Рассмотрите рефакторинг и разделение на модули.")
 
@@ -153,6 +184,7 @@ class CodeAnalyzer:
         }
 
     class _ASTAnalyzer(ast.NodeVisitor):
+        """Внутренний AST-анализатор для обхода дерева кода."""
 
         def __init__(self):
             self.functions: List[Dict] = []

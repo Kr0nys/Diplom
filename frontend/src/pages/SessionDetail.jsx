@@ -21,7 +21,7 @@ export default function SessionDetail() {
 
   useEffect(() => {
     loadSession();
-    const interval = setInterval(loadSession, 5000);
+    const interval = setInterval(loadSession, 5000); // Polling каждые 5 секунд
     return () => clearInterval(interval);
   }, [id]);
 
@@ -30,9 +30,27 @@ export default function SessionDetail() {
       const data = await sessionsAPI.getById(id);
       setSession(data);
 
-      if (data.status === 'TESTS_GENERATED' && data.test_tasks?.length > 0) {
-        const lastTask = data.test_tasks[0];
-        setCurrentTask(lastTask);
+      // Проверяем последнюю задачу генерации тестов
+      if (data.latest_test_task) {
+        setCurrentTask((prev) => {
+          const fromSession = data.latest_test_task;
+          // Если API сессии не прислал текст тестов, но он уже есть в текущем state/поле generated_tests,
+          // не затираем отображение после смены статуса.
+          const generated = fromSession.generated_tests || prev?.generated_tests || data.generated_tests;
+          return {
+            ...fromSession,
+            generated_tests: generated,
+          };
+        });
+      } else if (data.generated_tests) {
+        setCurrentTask((prev) => ({
+          ...(prev || {}),
+          id: prev?.id || 'latest',
+          status: prev?.status || 'COMPLETED',
+          config: prev?.config || {},
+          generated_tests: data.generated_tests,
+          error_message: prev?.error_message || '',
+        }));
       }
     } catch (error) {
       toast.error('Ошибка загрузки сессии');
@@ -49,6 +67,7 @@ export default function SessionDetail() {
       toast.success('Генерация тестов началась!');
       setShowConfig(false);
 
+      // Начинаем polling задачи
       const checkTask = async () => {
         const task = await tasksAPI.getById(response.task_id);
         setCurrentTask(task);
@@ -135,6 +154,18 @@ export default function SessionDetail() {
         </div>
       )}
 
+      {session.status === 'TESTS_GENERATED' && !showConfig && (
+        <div className="card text-center py-8">
+          <h3 className="text-lg font-semibold mb-4">Тесты уже сгенерированы</h3>
+          <p className="text-gray-600 mb-6">
+            Вы можете запустить генерацию повторно с другими настройками.
+          </p>
+          <button onClick={() => setShowConfig(true)} className="btn-primary">
+            Сгенерировать заново
+          </button>
+        </div>
+      )}
+
       {/* Конфигурация генерации */}
       {showConfig && (
         <div className="card">
@@ -147,6 +178,18 @@ export default function SessionDetail() {
       )}
 
       {/* Результаты генерации */}
+      {currentTask && (
+        <div className="card bg-blue-50 border border-blue-200">
+          <h3 className="text-lg font-semibold text-blue-900 mb-2">Информация о генерации</h3>
+          <p className="text-blue-800 text-sm">
+            Режим: {currentTask.config?.generation_mode === 'ai' ? 'AI (расширенный)' : 'Базовые правила'}
+          </p>
+          {currentTask.error_message && (
+            <p className="text-amber-700 text-sm mt-2">{currentTask.error_message}</p>
+          )}
+        </div>
+      )}
+
       {currentTask && currentTask.generated_tests && (
         <TestViewer code={currentTask.generated_tests} onDownload={handleDownload} />
       )}
