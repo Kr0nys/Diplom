@@ -1,0 +1,36 @@
+# Демо: один порт 8080 (nginx). Доступ снаружи — Tuna или локальная Wi‑Fi сеть.
+# Запуск: docker compose -f docker-compose.yml -f docker-compose.demo.yml up -d --build
+
+services:
+  backend:
+    environment:
+      - PUBLIC_DEMO_MODE=1
+      - DEBUG=True
+
+  frontend:
+    environment:
+      # Относительный /api — работает с любым доменом туннеля без пересборки
+      - VITE_API_URL=/api
+
+  celery_worker:
+    command: celery -A app worker --loglevel=info --pool=prefork --concurrency=${CELERY_WORKER_CONCURRENCY:-4}
+    environment:
+      - CELERY_WORKER_CONCURRENCY=${CELERY_WORKER_CONCURRENCY:-4}
+
+  ollama:
+    environment:
+      - OLLAMA_NUM_PARALLEL=${OLLAMA_NUM_PARALLEL:-2}
+
+  nginx:
+    image: nginx:1.27-alpine
+    container_name: analyzer_nginx_demo
+    ports:
+      - "8080:80"
+    volumes:
+      - ./deploy/nginx.demo.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - backend
+      - frontend
+    networks:
+      - analyzer_network
+    restart: unless-stopped

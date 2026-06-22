@@ -1,0 +1,45 @@
+{
+  "profile": "api",
+  "callable_rules": [
+    {
+      "id": "entity_action_service",
+      "qualname_regex": "^\\w+_(create|update|delete|get|list|fetch|save|remove|activate|deactivate|register|login|logout|send|reset|confirm|approve|reject|archive|restore)$",
+      "adds_tests": ["returns_smoke", "returns_not_none"]
+    },
+    {
+      "id": "repository_dao",
+      "qualname_regex": "^(get_by_|find_by_|get_all|list_|count_|exists_|fetch_one|fetch_many|select_|query_)",
+      "adds_tests": ["returns_smoke", "missing_key_edge_if_raises"]
+    },
+    {
+      "id": "pagination_search",
+      "qualname_regex": "^(list_|paginate_|page_|search_|filter_|query_)",
+      "adds_tests": ["empty_collection_edge", "returns_collection_or_bool", "pagination_zero_limit_edge"]
+    },
+    {
+      "id": "schema_validate",
+      "qualname_regex": "^(validate_|schema_|serialize_|deserialize_|model_validate)",
+      "adds_tests": ["returns_bool", "falsey_input_if_str"]
+    },
+    {
+      "id": "http_handler",
+      "qualname_regex": "^(handle_|on_|process_request|dispatch_|route_)",
+      "adds_tests": ["returns_smoke"]
+    },
+    {
+      "id": "auth_permission",
+      "qualname_regex": "^(authenticate_|authorize_|check_permission|has_permission|can_access)",
+      "adds_tests": ["returns_bool"]
+    }
+  ],
+  "test_templates": {
+    "pagination_zero_limit_edge": {
+      "doc": "Граничный случай пагинации: limit/offset/page равны нулю (типичный REST-паттерн)",
+      "requires_first_arg": true,
+      "force_first_arg_if_name_regex": [
+        ["(limit|page_size|per_page|offset|skip|page)$", "0"]
+      ],
+      "body_lines": ["assert True"]
+    }
+  }
+}

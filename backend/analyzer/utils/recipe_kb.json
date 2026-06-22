@@ -1,0 +1,464 @@
+{
+  "param_value_rules": [
+    {
+      "name_regex": "(^|_)(date_str|date_string|day_str)(_|$)",
+      "valid": "'2024-01-15'",
+      "edge": "''",
+      "invalid": "'not-a-date'",
+      "invalid_raises_any_of": ["ValueError"],
+      "edge_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(date|datetime|timestamp)(_|$)",
+      "valid": "'2024-01-15T12:00:00'",
+      "edge": "'1970-01-01T00:00:00'",
+      "invalid": "'not-a-date'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(start|end)_?(date|datetime|time)(_|$)",
+      "valid": "'2024-01-01'",
+      "edge": "'2024-01-01'",
+      "invalid": "'0000-00-00'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(url|uri|link|href)(_|$)",
+      "valid": "'https://example.com'",
+      "edge": "''",
+      "invalid": "'ht!tp://bad'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(rate|ratio|percent|percentage|discount)(_|$)",
+      "valid": "0.1",
+      "edge": "0.0",
+      "invalid": "1.5",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(amount|price|total|sum|cost|balance|fee)(_|$)",
+      "valid": "1",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(count|qty|quantity|size|length|limit|offset|page)(_|$)",
+      "valid": "1",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(email|mail)(_|$)",
+      "valid": "'user@example.com'",
+      "edge": "''",
+      "invalid": "'not-an-email'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(phone|mobile|tel)(_|$)",
+      "valid": "'+12025550101'",
+      "edge": "''",
+      "invalid": "'abc'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(uuid|guid)(_|$)",
+      "valid": "'550e8400-e29b-41d4-a716-446655440000'",
+      "edge": "''",
+      "invalid": "'not-a-uuid'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(token|api_key|apikey|secret|password)(_|$)",
+      "valid": "'test-token-abc'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(name|title|text|message|desc|description|label)(_|$)",
+      "valid": "'x'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(slug|code|sku|isbn)(_|$)",
+      "valid": "'ABC-123'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(status|state|kind|type|category)(_|$)",
+      "valid": "'active'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(enabled|active|visible|is_)(_|$)",
+      "valid": "True",
+      "edge": "False",
+      "invalid": "'yes'",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(currency|curr)(_|$)",
+      "valid": "'USD'",
+      "edge": "''",
+      "invalid": "'???'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(vat|tax)(_|$)",
+      "valid": "0.2",
+      "edge": "0.0",
+      "invalid": "-0.1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(age|years|priority|score|weight|height)(_|$)",
+      "valid": "1",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(id|pk|user_id|item_id)(_|$)",
+      "valid": "1",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError", "KeyError"]
+    },
+    {
+      "name_regex": "(^|_)(path|filepath|filename|file)(_|$)",
+      "valid": "'/tmp/file.txt'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(books|items|records|rows|lines|entries|values|data)(_|$)",
+      "valid": "[]",
+      "edge": "[]",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError"]
+    },
+    {
+      "name_regex": "(^|_)(mapping|dict|payload|meta|options|config)(_|$)",
+      "valid": "{}",
+      "edge": "{}",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError"]
+    },
+    {
+      "name_regex": "(^|_)(tags|labels|keys)(_|$)",
+      "valid": "[]",
+      "edge": "[]",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError"]
+    },
+    {
+      "name_regex": "(^|_)(timeout|retries|retry)(_|$)",
+      "valid": "30",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(language|locale|lang)(_|$)",
+      "valid": "'en'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(zip|zipcode|postal|postcode)(_|$)",
+      "valid": "'10001'",
+      "edge": "''",
+      "invalid": "'12'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(iban|account|account_no|account_number)(_|$)",
+      "valid": "'DE89370400440532013000'",
+      "edge": "''",
+      "invalid": "'bad'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(host|hostname|domain)(_|$)",
+      "valid": "'example.com'",
+      "edge": "''",
+      "invalid": "'not a host'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(port)(_|$)",
+      "valid": "8080",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(json|body|raw|content)(_|$)",
+      "valid": "'{\"ok\": true}'",
+      "edge": "''",
+      "invalid": "'not-json'",
+      "invalid_raises_any_of": ["ValueError", "TypeError"]
+    },
+    {
+      "name_regex": "(^|_)(username|user_name|login)(_|$)",
+      "valid": "'johndoe'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(query|search|q|term|keyword)(_|$)",
+      "valid": "'python'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(page_size|per_page|pagesize)(_|$)",
+      "valid": "20",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(sort|order|order_by|sort_by)(_|$)",
+      "valid": "'created_at'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(direction|sort_dir|order_dir)(_|$)",
+      "valid": "'asc'",
+      "edge": "'desc'",
+      "invalid": "'upwards'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(version|api_version|schema_version)(_|$)",
+      "valid": "'v1'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(role|permission|scope)(_|$)",
+      "valid": "'user'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(lat|latitude)(_|$)",
+      "valid": "55.75",
+      "edge": "0.0",
+      "invalid": "999.0",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(lon|lng|longitude)(_|$)",
+      "valid": "37.62",
+      "edge": "0.0",
+      "invalid": "999.0",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(ip|client_ip|remote_addr)(_|$)",
+      "valid": "'127.0.0.1'",
+      "edge": "''",
+      "invalid": "'999.999.999.999'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(otp|pin|verification_code|auth_code)(_|$)",
+      "valid": "'123456'",
+      "edge": "''",
+      "invalid": "'12'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(year)(_|$)",
+      "valid": "2024",
+      "edge": "1970",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(month)(_|$)",
+      "valid": "6",
+      "edge": "1",
+      "invalid": "13",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(day)(_|$)",
+      "valid": "15",
+      "edge": "1",
+      "invalid": "32",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(duration|interval|seconds|timeout_sec)(_|$)",
+      "valid": "60",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(batch_size|chunk_size|batch)(_|$)",
+      "valid": "10",
+      "edge": "1",
+      "invalid": "0",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(min_|max_|minimum|maximum)(_|$)",
+      "valid": "0",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(hex|color|colour)(_|$)",
+      "valid": "'#336699'",
+      "edge": "''",
+      "invalid": "'not-a-color'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(content_type|mime|mimetype)(_|$)",
+      "valid": "'application/json'",
+      "edge": "''",
+      "invalid": "'text'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(headers|header)(_|$)",
+      "valid": "{'Content-Type': 'application/json'}",
+      "edge": "{}",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError"]
+    },
+    {
+      "name_regex": "(^|_)(session_id|request_id|trace_id|correlation_id)(_|$)",
+      "valid": "'550e8400-e29b-41d4-a716-446655440000'",
+      "edge": "''",
+      "invalid": "'bad'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(tenant_id|workspace_id|org_id|organization_id)(_|$)",
+      "valid": "1",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError", "KeyError"]
+    },
+    {
+      "name_regex": "(^|_)(client_id|app_id|application_id)(_|$)",
+      "valid": "'app-123'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(country|region|city)(_|$)",
+      "valid": "'US'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(address|street|line1)(_|$)",
+      "valid": "'1 Main St'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(timezone|tz)(_|$)",
+      "valid": "'UTC'",
+      "edge": "''",
+      "invalid": "'Invalid/Zone'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(barcode|ean|upc)(_|$)",
+      "valid": "'5901234123457'",
+      "edge": "''",
+      "invalid": "'x'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(unit|uom)(_|$)",
+      "valid": "'kg'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(callback|redirect|redirect_uri|webhook)(_|$)",
+      "valid": "'https://example.com/callback'",
+      "edge": "''",
+      "invalid": "'not-a-url'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(table|table_name|model_name)(_|$)",
+      "valid": "'users'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(field|column|attribute)(_|$)",
+      "valid": "'email'",
+      "edge": "''",
+      "invalid": "None",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(pattern|regex)(_|$)",
+      "valid": "'^[a-z]+$'",
+      "edge": "''",
+      "invalid": "'[unclosed'",
+      "invalid_raises_any_of": ["ValueError"]
+    },
+    {
+      "name_regex": "(^|_)(parent_id|owner_id|created_by|updated_by)(_|$)",
+      "valid": "1",
+      "edge": "0",
+      "invalid": "-1",
+      "invalid_raises_any_of": ["ValueError", "KeyError"]
+    },
+    {
+      "name_regex": "(^|_)(deleted|is_deleted|archived)(_|$)",
+      "valid": "False",
+      "edge": "True",
+      "invalid": "'no'",
+      "invalid_raises_any_of": ["TypeError", "ValueError"]
+    }
+  ],
+  "exception_preference": [
+    "ValueError",
+    "TypeError",
+    "KeyError",
+    "IndexError",
+    "AssertionError",
+    "RuntimeError",
+    "AttributeError",
+    "FileNotFoundError",
+    "OSError"
+  ]
+}

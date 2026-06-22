@@ -1,0 +1,166 @@
+{
+  "profile": "generic",
+  "callable_rules": [
+    {
+      "id": "validator_bool",
+      "qualname_regex": "^(is_|has_|can_|should_|needs_)",
+      "adds_tests": ["returns_bool", "falsey_input_if_str"]
+    },
+    {
+      "id": "parser_like",
+      "qualname_regex": "^(parse_|from_|to_|read_|load_|decode_)",
+      "adds_tests": ["empty_input_for_str_or_list", "roundtrip_if_pair_exists"]
+    },
+    {
+      "id": "serializer_like",
+      "qualname_regex": "^(serialize_|dump_|encode_|export_)",
+      "adds_tests": ["empty_input_for_str_or_list"]
+    },
+    {
+      "id": "collection_ops",
+      "qualname_regex": "^(add_|remove_|delete_|update_|set_|append_|extend_|insert_|clear_)",
+      "adds_tests": ["idempotent_if_no_raise", "empty_collection_edge"]
+    },
+    {
+      "id": "getter_like",
+      "qualname_regex": "^(get_|fetch_|find_|lookup_|resolve_)",
+      "adds_tests": ["returns_smoke", "missing_key_edge_if_raises"]
+    },
+    {
+      "id": "filter_sort",
+      "qualname_regex": "^(filter_|sort_|sorted_|group_|partition_)",
+      "adds_tests": ["empty_collection_edge", "returns_collection_or_bool"]
+    },
+    {
+      "id": "calculate_like",
+      "qualname_regex": "^(calc_|compute_|calculate_|sum_|total_|count_)",
+      "adds_tests": ["returns_numeric_or_bool"]
+    },
+    {
+      "id": "convert_like",
+      "qualname_regex": "^(convert_|transform_|normalize_|format_)",
+      "adds_tests": ["empty_input_for_str_or_list"]
+    },
+    {
+      "id": "factory_create",
+      "qualname_regex": "^(create_|make_|build_|new_)",
+      "adds_tests": ["returns_not_none"]
+    },
+    {
+      "id": "validate_like",
+      "qualname_regex": "^validate_",
+      "adds_tests": ["returns_bool", "falsey_input_if_str"]
+    },
+    {
+      "id": "ensure_check",
+      "qualname_regex": "^(ensure_|check_|verify_|assert_)",
+      "adds_tests": ["returns_bool"]
+    },
+    {
+      "id": "string_ops",
+      "qualname_regex": "^(split_|join_|strip_|replace_|render_|template_)",
+      "adds_tests": ["empty_input_for_str_or_list", "returns_str_or_numeric"]
+    },
+    {
+      "id": "merge_combine",
+      "qualname_regex": "^(merge_|combine_|union_|intersect_)",
+      "adds_tests": ["empty_collection_edge", "returns_collection_or_bool"]
+    },
+    {
+      "id": "entity_action",
+      "qualname_regex": "^\\w+_(create|update|delete|get|list|save|remove|register|login)$",
+      "adds_tests": ["returns_smoke", "returns_not_none"]
+    },
+    {
+      "id": "repository_read",
+      "qualname_regex": "^(get_by_|find_by_|get_all|exists_|count_)",
+      "adds_tests": ["returns_smoke", "missing_key_edge_if_raises"]
+    },
+    {
+      "id": "list_paginate",
+      "qualname_regex": "^(list_|paginate_|search_)",
+      "adds_tests": ["empty_collection_edge", "pagination_zero_limit_edge"]
+    },
+    {
+      "id": "send_notify",
+      "qualname_regex": "^(send_|notify_|publish_|enqueue_)",
+      "adds_tests": ["returns_smoke"]
+    },
+    {
+      "id": "copy_clone",
+      "qualname_regex": "^(copy_|clone_|duplicate_)",
+      "adds_tests": ["returns_not_none"]
+    }
+  ],
+  "test_templates": {
+    "returns_bool": {
+      "doc": "Результат должен быть bool",
+      "body_lines": ["assert isinstance(result, bool)"]
+    },
+    "returns_smoke": {
+      "doc": "Вызов завершается и возвращает значение",
+      "body_lines": ["assert result is not None"]
+    },
+    "returns_not_none": {
+      "doc": "Фабрика/конструктор должен возвращать экземпляр",
+      "body_lines": ["assert result is not None"]
+    },
+    "returns_numeric_or_bool": {
+      "doc": "Числовой результат или bool",
+      "body_lines": ["assert isinstance(result, (bool, int, float))"]
+    },
+    "returns_str_or_numeric": {
+      "doc": "Строковый или числовой результат",
+      "body_lines": ["assert isinstance(result, (str, int, float))"]
+    },
+    "returns_collection_or_bool": {
+      "doc": "Коллекция или bool",
+      "body_lines": ["assert isinstance(result, (bool, list, dict, tuple, set))"]
+    },
+    "falsey_input_if_str": {
+      "doc": "Ложное значение (пустая строка), если допустимо",
+      "force_first_arg": "''",
+      "body_lines": ["assert True"]
+    },
+    "empty_input_for_str_or_list": {
+      "doc": "Граничный случай: пустой ввод (строка/список), если допустимо",
+      "force_first_arg_if_ann_contains_any": [
+        ["str", "''"],
+        ["list", "[]"],
+        ["List[", "[]"],
+        ["Sequence", "[]"]
+      ],
+      "body_lines": ["assert True"]
+    },
+    "idempotent_if_no_raise": {
+      "doc": "Повторный вызов не должен падать (best-effort)",
+      "repeat_call": true,
+      "body_lines": ["assert True"]
+    },
+    "empty_collection_edge": {
+      "doc": "Граничный случай: пустая коллекция для первого аргумента",
+      "force_first_arg_if_name_regex": [
+        ["(items|values|records|rows|lines|entries|books|data|tags)$", "[]"]
+      ],
+      "body_lines": ["assert True"]
+    },
+    "missing_key_edge_if_raises": {
+      "doc": "Отсутствующий ключ/id, если в коде ожидается KeyError",
+      "requires_exception": "KeyError",
+      "force_first_arg_if_name_regex": [["(id|key|name)$", "'__missing__'"]],
+      "raises": "KeyError"
+    },
+    "roundtrip_if_pair_exists": {
+      "doc": "Roundtrip с парой to_/from_/parse_, если есть",
+      "roundtrip": true
+    },
+    "pagination_zero_limit_edge": {
+      "doc": "Граничный случай пагинации: limit/offset/page равны нулю",
+      "requires_first_arg": true,
+      "force_first_arg_if_name_regex": [
+        ["(limit|page_size|per_page|offset|skip|page)$", "0"]
+      ],
+      "body_lines": ["assert True"]
+    }
+  }
+}

@@ -1,0 +1,53 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+*.egg-info/
+dist/
+build/
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+media/
+staticfiles/
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Docker
+.docker/
+deploy/tuna.exe
+
+# Pytest cache
+**/.pytest_cache/
+
+# Временные распаковки для анализа (volume ./work в celery_worker)
+work/*
+!work/.gitkeep
+
+# Сборка фронтенда (пересоздаётся через npm run build)
+frontend/dist/
+
+# OS
+.DS_Store
+Thumbs.db

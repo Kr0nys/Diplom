@@ -1,0 +1,68 @@
+{
+  "profile": "finance",
+  "callable_rules": [
+    {
+      "id": "validate_numeric_amounts",
+      "qualname_regex": "^validate_(amount|price|total|sum|cost|balance|fee)\\b",
+      "adds_tests": ["zero_amount_edge", "negative_amount_raises_if_valueerror"]
+    },
+    {
+      "id": "validate_rate_tax",
+      "qualname_regex": "^validate_(rate|tax|vat|discount|percent)\\b",
+      "adds_tests": ["zero_rate_edge", "invalid_rate_raises"]
+    },
+    {
+      "id": "apply_money_ops",
+      "qualname_regex": "^(apply_|add_|subtract_|calc_|compute_).*(tax|vat|discount|fee|interest)",
+      "adds_tests": ["zero_amount_edge", "returns_numeric_or_bool"]
+    },
+    {
+      "id": "money_format",
+      "qualname_regex": "^(format_|round_|quantize_).*(amount|money|price|currency)",
+      "adds_tests": ["returns_str_or_numeric"]
+    },
+    {
+      "id": "currency_convert",
+      "qualname_regex": "^(convert_|exchange_).*(currency|money|amount)",
+      "adds_tests": ["returns_numeric_or_bool"]
+    }
+  ],
+  "test_templates": {
+    "zero_amount_edge": {
+      "doc": "Граничный случай: нулевая сумма (первый параметр)",
+      "requires_first_arg": true,
+      "requires_first_ann_numeric": true,
+      "force_first_arg_if_name_regex": [["(amount|price|total|sum|cost|value|balance|fee)$", "0"]],
+      "body_lines": ["assert True"]
+    },
+    "zero_rate_edge": {
+      "doc": "Граничный случай: нулевая ставка/налог (первый параметр)",
+      "requires_first_arg": true,
+      "force_first_arg_if_name_regex": [["(rate|tax|vat|discount|percent)$", "0"]],
+      "body_lines": ["assert isinstance(result, (bool, int, float))"]
+    },
+    "negative_amount_raises_if_valueerror": {
+      "doc": "Отрицательная сумма должна вызывать ValueError, если реализовано",
+      "requires_first_arg": true,
+      "requires_first_ann_numeric": true,
+      "force_first_arg_if_name_regex": [["(amount|price|total|sum|cost|value|balance|fee)$", "-1"]],
+      "requires_exception": "ValueError",
+      "raises": "ValueError"
+    },
+    "invalid_rate_raises": {
+      "doc": "Ставка > 1 или отрицательная должна вызывать ValueError, если реализовано",
+      "requires_first_arg": true,
+      "force_first_arg_if_name_regex": [["(rate|tax|vat|discount|percent)$", "1.5"]],
+      "requires_exception": "ValueError",
+      "raises": "ValueError"
+    },
+    "returns_numeric_or_bool": {
+      "doc": "Финансовая функция возвращает число или bool",
+      "body_lines": ["assert isinstance(result, (bool, int, float))"]
+    },
+    "returns_str_or_numeric": {
+      "doc": "Форматирование/округление возвращает строку или число",
+      "body_lines": ["assert isinstance(result, (str, int, float))"]
+    }
+  }
+}
