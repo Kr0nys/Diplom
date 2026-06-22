@@ -1,5 +1,7 @@
 import { useMemo } from 'react';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import toast from 'react-hot-toast';
+import { copyTextToClipboard } from '../../utils/copyToClipboard';
 
 const COLORS = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'];
 
@@ -61,9 +63,11 @@ export default function AnalysisResults({ metrics, report, variant = 'full' }) {
       it?.excerpt ? `Code: ${it.excerpt}` : '',
     ].filter(Boolean).join('\n');
     try {
-      await navigator.clipboard.writeText(text);
-    } catch (e) {
-      // ignore
+      const ok = await copyTextToClipboard(text);
+      if (ok) toast.success('Скопировано');
+      else toast.error('Не удалось скопировать');
+    } catch {
+      toast.error('Не удалось скопировать');
     }
   };
 

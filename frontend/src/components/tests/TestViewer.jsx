@@ -2,6 +2,7 @@ import { useState, useEffect, useLayoutEffect, useCallback, useRef, useMemo } fr
 import { sessionsAPI } from '../../api/sessions';
 import toast from 'react-hot-toast';
 import { applyPythonEditorKey } from '../../utils/pythonEditorKeys';
+import { copyTextToClipboard } from '../../utils/copyToClipboard';
 
 const MONO = {
   fontSize: '13px',
@@ -160,9 +161,14 @@ export default function TestViewer({
   }, [editMode, draft, code, onActiveTextChange]);
 
   const handleCopy = async () => {
-    await navigator.clipboard.writeText(editMode ? draft : code ?? '');
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    const text = editMode ? draft : code ?? '';
+    const ok = await copyTextToClipboard(text);
+    if (ok) {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } else {
+      toast.error('Не удалось скопировать (разрешите доступ к буферу обмена)');
+    }
   };
 
   const handleCancelEdit = useCallback(() => {
